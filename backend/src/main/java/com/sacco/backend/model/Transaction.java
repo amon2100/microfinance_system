@@ -15,6 +15,9 @@ public class Transaction {
     @Column(nullable = false)
     private Long memberId;
 
+    @Column(unique = true)
+    private String externalId;
+
     @Column(nullable = false)
     private String type;
 
@@ -36,6 +39,14 @@ public class Transaction {
 
     public void setMemberId(Long memberId) {
         this.memberId = memberId;
+    }
+
+    public String getExternalId() {
+        return externalId;
+    }
+
+    public void setExternalId(String externalId) {
+        this.externalId = externalId;
     }
 
     public String getType() {

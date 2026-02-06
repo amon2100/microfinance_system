@@ -58,7 +58,7 @@ public class SavingsController {
         if (user == null) {
             return;
         }
-        if (user.getRole() != Role.TELLER) {
+        if (user.getRole() != Role.TELLER && user.getRole() != Role.DIRECTOR) {
             createAccountButton.setDisable(true);
             depositButton.setDisable(true);
             withdrawButton.setDisable(true);

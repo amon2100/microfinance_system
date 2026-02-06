@@ -10,17 +10,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LoanRepository {
-    public long create(Connection connection, long memberId, BigDecimal principal, BigDecimal interestRate,
-                       int termMonths, long createdBy) {
-        String sql = "INSERT INTO loans(member_id, principal, interest_rate, term_months, status, created_by, outstanding_balance) " +
-                "VALUES(?, ?, ?, ?, 'PENDING', ?, ?)";
+        public long create(Connection connection, String externalId, long memberId, BigDecimal principal, BigDecimal interestRate,
+                   int termMonths, long createdBy) {
+        String sql = "INSERT INTO loans(external_id, member_id, principal, interest_rate, term_months, status, created_by, outstanding_balance) " +
+            "VALUES(?, ?, ?, ?, ?, 'PENDING', ?, ?)";
         try (PreparedStatement ps = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
-            ps.setLong(1, memberId);
-            ps.setBigDecimal(2, principal);
-            ps.setBigDecimal(3, interestRate);
-            ps.setInt(4, termMonths);
-            ps.setLong(5, createdBy);
-            ps.setBigDecimal(6, principal);
+            ps.setString(1, externalId);
+            ps.setLong(2, memberId);
+            ps.setBigDecimal(3, principal);
+            ps.setBigDecimal(4, interestRate);
+            ps.setInt(5, termMonths);
+            ps.setLong(6, createdBy);
+            ps.setBigDecimal(7, principal);
             ps.executeUpdate();
             try (ResultSet rs = ps.getGeneratedKeys()) {
                 if (rs.next()) {
@@ -34,7 +35,7 @@ public class LoanRepository {
     }
 
     public List<Loan> findAll(Connection connection) {
-        String sql = "SELECT l.id, l.member_id, m.full_name, l.principal, l.interest_rate, l.term_months, l.issued_at, l.status, " +
+        String sql = "SELECT l.id, l.external_id, l.member_id, m.full_name, l.principal, l.interest_rate, l.term_months, l.issued_at, l.status, " +
                 "l.outstanding_balance, l.created_by, l.approved_by, l.disbursed_by " +
                 "FROM loans l JOIN members m ON m.id = l.member_id ORDER BY l.id DESC";
         List<Loan> loans = new ArrayList<>();
@@ -43,6 +44,7 @@ public class LoanRepository {
             while (rs.next()) {
                 loans.add(new Loan(
                         rs.getLong("id"),
+                    rs.getString("external_id"),
                         rs.getLong("member_id"),
                         rs.getString("full_name"),
                         rs.getBigDecimal("principal"),
@@ -63,7 +65,7 @@ public class LoanRepository {
     }
 
     public Loan findById(Connection connection, long loanId) {
-        String sql = "SELECT l.id, l.member_id, m.full_name, l.principal, l.interest_rate, l.term_months, l.issued_at, l.status, " +
+        String sql = "SELECT l.id, l.external_id, l.member_id, m.full_name, l.principal, l.interest_rate, l.term_months, l.issued_at, l.status, " +
                 "l.outstanding_balance, l.created_by, l.approved_by, l.disbursed_by " +
                 "FROM loans l JOIN members m ON m.id = l.member_id WHERE l.id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -72,6 +74,7 @@ public class LoanRepository {
                 if (rs.next()) {
                     return new Loan(
                             rs.getLong("id"),
+                            rs.getString("external_id"),
                             rs.getLong("member_id"),
                             rs.getString("full_name"),
                             rs.getBigDecimal("principal"),

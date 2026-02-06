@@ -11,12 +11,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TransactionRepository {
-    public long insert(Connection connection, long memberId, String type, BigDecimal amount) {
-        String sql = "INSERT INTO transactions(member_id, type, amount) VALUES(?, ?, ?)";
+    public long insert(Connection connection, String externalId, long memberId, String type, BigDecimal amount) {
+        String sql = "INSERT INTO transactions(external_id, member_id, type, amount) VALUES(?, ?, ?, ?)";
         try (PreparedStatement ps = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
-            ps.setLong(1, memberId);
-            ps.setString(2, type);
-            ps.setBigDecimal(3, amount);
+            ps.setString(1, externalId);
+            ps.setLong(2, memberId);
+            ps.setString(3, type);
+            ps.setBigDecimal(4, amount);
             ps.executeUpdate();
             try (ResultSet rs = ps.getGeneratedKeys()) {
                 if (rs.next()) {
@@ -83,12 +84,13 @@ public class TransactionRepository {
         }
     }
 
-    public long insertReversal(Connection connection, long memberId, long originalTransactionId, BigDecimal amount) {
-        String sql = "INSERT INTO transactions(member_id, type, amount, reversed_of) VALUES(?, 'REVERSAL', ?, ?)";
+    public long insertReversal(Connection connection, String externalId, long memberId, long originalTransactionId, BigDecimal amount) {
+        String sql = "INSERT INTO transactions(external_id, member_id, type, amount, reversed_of) VALUES(?, ?, 'REVERSAL', ?, ?)";
         try (PreparedStatement ps = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
-            ps.setLong(1, memberId);
-            ps.setBigDecimal(2, amount);
-            ps.setLong(3, originalTransactionId);
+            ps.setString(1, externalId);
+            ps.setLong(2, memberId);
+            ps.setBigDecimal(3, amount);
+            ps.setLong(4, originalTransactionId);
             ps.executeUpdate();
             try (ResultSet rs = ps.getGeneratedKeys()) {
                 if (rs.next()) {

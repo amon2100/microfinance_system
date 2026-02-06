@@ -20,6 +20,9 @@ public class AuthorizationService {
                 logAccessDenied(actorUserId, action, entityType, entityId, "User not found or inactive");
                 throw new AccessDeniedException("Access denied");
             }
+            if (user.getRole() == Role.DIRECTOR) {
+                return user;
+            }
             boolean permitted = Arrays.stream(allowed).anyMatch(role -> role == user.getRole());
             if (!permitted) {
                 logAccessDenied(actorUserId, action, entityType, entityId,

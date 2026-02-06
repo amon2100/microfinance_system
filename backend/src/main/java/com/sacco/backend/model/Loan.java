@@ -15,6 +15,9 @@ public class Loan {
     @Column(nullable = false)
     private Long memberId;
 
+    @Column(unique = true)
+    private String externalId;
+
     @Column(nullable = false, precision = 18, scale = 2)
     private BigDecimal principal;
 
@@ -48,6 +51,14 @@ public class Loan {
 
     public void setMemberId(Long memberId) {
         this.memberId = memberId;
+    }
+
+    public String getExternalId() {
+        return externalId;
+    }
+
+    public void setExternalId(String externalId) {
+        this.externalId = externalId;
     }
 
     public BigDecimal getPrincipal() {

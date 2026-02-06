@@ -19,7 +19,7 @@ public class TransactionService {
     }
 
     @Transactional
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('DIRECTOR')")
     public Transaction reverseTransaction(Long transactionId, Long actorUserId) {
         Transaction original = transactionRepository.findById(transactionId)
                 .orElseThrow(() -> new ValidationException("Transaction not found"));

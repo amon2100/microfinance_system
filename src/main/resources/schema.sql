@@ -1,5 +1,6 @@
 CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    external_id TEXT UNIQUE,
     username TEXT NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
     role TEXT NOT NULL,
@@ -10,16 +11,28 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE TABLE IF NOT EXISTS members (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    external_id TEXT UNIQUE,
     full_name TEXT NOT NULL,
     national_id TEXT UNIQUE,
     phone TEXT,
     email TEXT,
+    photo_path TEXT,
     active INTEGER NOT NULL DEFAULT 1,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS outbox (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    type TEXT NOT NULL,
+    payload TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'PENDING',
+    last_error TEXT,
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
 CREATE TABLE IF NOT EXISTS savings_accounts (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    external_id TEXT UNIQUE,
     member_id INTEGER NOT NULL,
     account_no TEXT NOT NULL UNIQUE,
     balance NUMERIC NOT NULL DEFAULT 0,
@@ -29,6 +42,7 @@ CREATE TABLE IF NOT EXISTS savings_accounts (
 
 CREATE TABLE IF NOT EXISTS loans (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    external_id TEXT UNIQUE,
     member_id INTEGER NOT NULL,
     principal NUMERIC NOT NULL,
     interest_rate NUMERIC NOT NULL,
@@ -44,6 +58,7 @@ CREATE TABLE IF NOT EXISTS loans (
 
 CREATE TABLE IF NOT EXISTS transactions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    external_id TEXT UNIQUE,
     member_id INTEGER NOT NULL,
     type TEXT NOT NULL,
     amount NUMERIC NOT NULL,

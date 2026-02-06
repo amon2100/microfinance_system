@@ -1,7 +1,7 @@
 package com.sacco.backend.model;
 
 public enum Role {
-    ADMIN,
+    DIRECTOR,
     MANAGER,
     TELLER
 }

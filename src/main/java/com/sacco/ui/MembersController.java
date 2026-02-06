@@ -7,6 +7,9 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.stage.FileChooser;
 
 public class MembersController {
     @FXML
@@ -32,6 +35,12 @@ public class MembersController {
     private TextField emailField;
     @FXML
     private Label messageLabel;
+    @FXML
+    private ImageView photoPreview;
+    @FXML
+    private ListView<Member> photoList;
+
+    private String selectedPhotoPath;
 
     private final MemberService memberService = new MemberService();
     private final ObservableList<Member> members = FXCollections.observableArrayList();
@@ -45,7 +54,48 @@ public class MembersController {
         emailColumn.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getEmail()));
 
         membersTable.setItems(members);
+        photoList.setItems(members);
+        photoList.setCellFactory(list -> new ListCell<>() {
+            private final ImageView imageView = new ImageView();
+
+            {
+                imageView.setFitWidth(48);
+                imageView.setFitHeight(48);
+                imageView.setPreserveRatio(true);
+            }
+
+            @Override
+            protected void updateItem(Member item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    setText(item.getFullName());
+                    if (item.getPhotoPath() != null && !item.getPhotoPath().isBlank()) {
+                        imageView.setImage(new Image("file:" + item.getPhotoPath(), 48, 48, true, true));
+                        setGraphic(imageView);
+                    } else {
+                        setGraphic(null);
+                    }
+                }
+            }
+        });
         refresh();
+    }
+
+    @FXML
+    private void handleSelectPhoto() {
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle("Select Member Photo");
+        chooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg")
+        );
+        var file = chooser.showOpenDialog(photoPreview.getScene().getWindow());
+        if (file != null) {
+            selectedPhotoPath = file.getAbsolutePath();
+            photoPreview.setImage(new Image("file:" + selectedPhotoPath, 120, 120, true, true));
+        }
     }
 
     @FXML
@@ -61,7 +111,7 @@ public class MembersController {
         try {
             Long actorUserId = SessionContext.getCurrentUserId();
             long userId = actorUserId != null ? actorUserId : 0L;
-            memberService.createMember(userId, fullName.trim(), safe(nationalId), safe(phone), safe(email));
+            memberService.createMember(userId, fullName.trim(), safe(nationalId), safe(phone), safe(email), selectedPhotoPath);
             clearForm();
             messageLabel.setText("Member added.");
             refresh();
@@ -79,6 +129,8 @@ public class MembersController {
         nationalIdField.clear();
         phoneField.clear();
         emailField.clear();
+        selectedPhotoPath = null;
+        photoPreview.setImage(null);
     }
 
     private String safe(String value) {

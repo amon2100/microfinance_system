@@ -10,11 +10,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SavingsRepository {
-    public long createAccount(Connection connection, long memberId, String accountNo) {
-        String sql = "INSERT INTO savings_accounts(member_id, account_no, balance) VALUES(?, ?, 0)";
+    public long createAccount(Connection connection, String externalId, long memberId, String accountNo) {
+        String sql = "INSERT INTO savings_accounts(external_id, member_id, account_no, balance) VALUES(?, ?, ?, 0)";
         try (PreparedStatement ps = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
-            ps.setLong(1, memberId);
-            ps.setString(2, accountNo);
+            ps.setString(1, externalId);
+            ps.setLong(2, memberId);
+            ps.setString(3, accountNo);
             ps.executeUpdate();
             try (ResultSet rs = ps.getGeneratedKeys()) {
                 if (rs.next()) {
@@ -28,7 +29,7 @@ public class SavingsRepository {
     }
 
     public List<SavingsAccount> findAll(Connection connection) {
-        String sql = "SELECT sa.id, sa.member_id, m.full_name, sa.account_no, sa.balance " +
+        String sql = "SELECT sa.id, sa.external_id, sa.member_id, m.full_name, sa.account_no, sa.balance " +
                 "FROM savings_accounts sa JOIN members m ON m.id = sa.member_id ORDER BY sa.id DESC";
         List<SavingsAccount> accounts = new ArrayList<>();
         try (PreparedStatement ps = connection.prepareStatement(sql);
@@ -36,6 +37,7 @@ public class SavingsRepository {
             while (rs.next()) {
                 accounts.add(new SavingsAccount(
                         rs.getLong("id"),
+                    rs.getString("external_id"),
                         rs.getLong("member_id"),
                         rs.getString("full_name"),
                         rs.getString("account_no"),

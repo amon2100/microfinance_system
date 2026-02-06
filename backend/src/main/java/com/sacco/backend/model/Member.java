@@ -15,10 +15,14 @@ public class Member {
     private String fullName;
 
     @Column(unique = true)
+    private String externalId;
+
+    @Column(unique = true)
     private String nationalId;
 
     private String phone;
     private String email;
+    private String photoUrl;
 
     @Column(nullable = false)
     private boolean active = true;
@@ -36,6 +40,14 @@ public class Member {
 
     public void setFullName(String fullName) {
         this.fullName = fullName;
+    }
+
+    public String getExternalId() {
+        return externalId;
+    }
+
+    public void setExternalId(String externalId) {
+        this.externalId = externalId;
     }
 
     public String getNationalId() {
@@ -60,6 +72,14 @@ public class Member {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getPhotoUrl() {
+        return photoUrl;
+    }
+
+    public void setPhotoUrl(String photoUrl) {
+        this.photoUrl = photoUrl;
     }
 
     public boolean isActive() {

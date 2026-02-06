@@ -5,8 +5,11 @@ import com.sacco.model.Role;
 import com.sacco.model.SavingsAccount;
 import com.sacco.model.User;
 import com.sacco.repository.AuditRepository;
+import com.sacco.repository.MemberRepository;
 import com.sacco.repository.SavingsRepository;
 import com.sacco.repository.TransactionRepository;
+import com.sacco.sync.OutboxRepository;
+import com.sacco.util.JsonUtil;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -17,12 +20,17 @@ public class SavingsService {
     private final TransactionRepository transactionRepository = new TransactionRepository();
     private final AuditRepository auditRepository = new AuditRepository();
     private final AuthorizationService authorizationService = new AuthorizationService();
+    private final OutboxRepository outboxRepository = new OutboxRepository();
+    private final MemberRepository memberRepository = new MemberRepository();
 
     public long createAccount(long actorUserId, long memberId, String accountNo) {
         try (Connection connection = Database.getConnection()) {
             connection.setAutoCommit(false);
             try {
-                long accountId = savingsRepository.createAccount(connection, memberId, accountNo);
+                String externalId = java.util.UUID.randomUUID().toString();
+                long accountId = savingsRepository.createAccount(connection, externalId, memberId, accountNo);
+                String memberExternalId = memberRepository.findExternalId(connection, memberId);
+                enqueueAccountSync(connection, externalId, memberExternalId, accountNo);
                 auditRepository.insert(connection, actorUserId, "SAVINGS_CREATED", "SAVINGS_ACCOUNT", accountId,
                         "AccountNo=" + accountNo);
                 connection.commit();
@@ -57,7 +65,10 @@ public class SavingsService {
                 BigDecimal newBalance = balance.add(amount);
                 savingsRepository.updateBalance(connection, accountNo, newBalance);
                 long memberId = accountMemberId;
-                long txId = transactionRepository.insert(connection, memberId, "SAVINGS_DEPOSIT", amount);
+                String externalId = java.util.UUID.randomUUID().toString();
+                long txId = transactionRepository.insert(connection, externalId, memberId, "SAVINGS_DEPOSIT", amount);
+                String memberExternalId = memberRepository.findExternalId(connection, memberId);
+                enqueueTransactionSync(connection, externalId, memberExternalId, "SAVINGS_DEPOSIT", amount);
                 auditRepository.insert(connection, actorUserId, "SAVINGS_DEPOSIT", "TRANSACTION", txId,
                         "AccountNo=" + accountNo + ", Amount=" + amount);
                 connection.commit();
@@ -94,7 +105,10 @@ public class SavingsService {
                 BigDecimal newBalance = balance.subtract(amount);
                 savingsRepository.updateBalance(connection, accountNo, newBalance);
                 long memberId = accountMemberId;
-                long txId = transactionRepository.insert(connection, memberId, "SAVINGS_WITHDRAWAL", amount);
+                String externalId = java.util.UUID.randomUUID().toString();
+                long txId = transactionRepository.insert(connection, externalId, memberId, "SAVINGS_WITHDRAWAL", amount);
+                String memberExternalId = memberRepository.findExternalId(connection, memberId);
+                enqueueTransactionSync(connection, externalId, memberExternalId, "SAVINGS_WITHDRAWAL", amount);
                 auditRepository.insert(connection, actorUserId, "SAVINGS_WITHDRAWAL", "TRANSACTION", txId,
                         "AccountNo=" + accountNo + ", Amount=" + amount);
                 connection.commit();
@@ -115,5 +129,24 @@ public class SavingsService {
         } catch (Exception ex) {
             throw new RuntimeException("Failed to load savings accounts", ex);
         }
+    }
+
+    private void enqueueAccountSync(Connection connection, String externalId, String memberExternalId, String accountNo) {
+        String payload = "{" +
+                "\"externalId\":\"" + JsonUtil.escape(externalId) + "\"," +
+                "\"memberExternalId\":\"" + JsonUtil.escape(memberExternalId) + "\"," +
+                "\"accountNo\":\"" + JsonUtil.escape(accountNo) + "\"" +
+                "}";
+        outboxRepository.enqueue(connection, "SAVINGS_CREATE", payload);
+    }
+
+    private void enqueueTransactionSync(Connection connection, String externalId, String memberExternalId, String type, java.math.BigDecimal amount) {
+        String payload = "{" +
+                "\"externalId\":\"" + JsonUtil.escape(externalId) + "\"," +
+                "\"memberExternalId\":\"" + JsonUtil.escape(memberExternalId) + "\"," +
+                "\"type\":\"" + JsonUtil.escape(type) + "\"," +
+                "\"amount\":" + amount +
+                "}";
+        outboxRepository.enqueue(connection, "TRANSACTION_CREATE", payload);
     }
 }

@@ -19,6 +19,8 @@ app:
     jwtSecret: "CHANGE_ME_TO_A_LONG_RANDOM_SECRET"
     jwtIssuer: "sacco-backend"
     jwtExpirationMinutes: 60
+  syncKey: "CHANGE_ME"
+  storageDir: "uploads"
   payments:
     mtn:
       apiBaseUrl: "https://sandbox.mtn.example"

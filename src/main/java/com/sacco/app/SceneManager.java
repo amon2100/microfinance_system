@@ -28,6 +28,7 @@ public final class SceneManager {
             LoginController controller = loader.getController();
             controller.setSceneManager(SceneManager::showDashboard);
             Scene scene = new Scene(root, 420, 320);
+            applyStyles(scene);
             primaryStage.setScene(scene);
             primaryStage.show();
         } catch (IOException ex) {
@@ -43,10 +44,15 @@ public final class SceneManager {
             DashboardController controller = loader.getController();
             controller.setUser(user);
             Scene scene = new Scene(root, 900, 600);
+            applyStyles(scene);
             primaryStage.setScene(scene);
             primaryStage.show();
         } catch (IOException ex) {
             throw new RuntimeException("Failed to load dashboard", ex);
         }
+    }
+
+    private static void applyStyles(Scene scene) {
+        scene.getStylesheets().add(SceneManager.class.getResource("/com/sacco/ui/app.css").toExternalForm());
     }
 }

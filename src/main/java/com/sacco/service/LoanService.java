@@ -9,6 +9,8 @@ import com.sacco.repository.LoanRepaymentRepository;
 import com.sacco.repository.LoanRepository;
 import com.sacco.repository.MemberRepository;
 import com.sacco.repository.TransactionRepository;
+import com.sacco.sync.OutboxRepository;
+import com.sacco.util.JsonUtil;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -21,6 +23,7 @@ public class LoanService {
     private final AuditRepository auditRepository = new AuditRepository();
     private final MemberRepository memberRepository = new MemberRepository();
     private final AuthorizationService authorizationService = new AuthorizationService();
+    private final OutboxRepository outboxRepository = new OutboxRepository();
 
     public long issueLoan(long actorUserId, long memberId, BigDecimal principal, BigDecimal interestRate, int termMonths) {
         User actor = authorizationService.requireRole(actorUserId, "LOAN_CREATE", "LOAN", null, Role.MANAGER);
@@ -42,7 +45,10 @@ public class LoanService {
                 if (loanRepository.hasDefaultedLoans(connection, memberId)) {
                     throw new ValidationException("Member has defaulted loans");
                 }
-                long loanId = loanRepository.create(connection, memberId, principal, interestRate, termMonths, actor.getId());
+                String externalId = java.util.UUID.randomUUID().toString();
+                long loanId = loanRepository.create(connection, externalId, memberId, principal, interestRate, termMonths, actor.getId());
+                String memberExternalId = memberRepository.findExternalId(connection, memberId);
+                enqueueLoanSync(connection, externalId, memberExternalId, principal, interestRate, termMonths);
                 auditRepository.insert(connection, actorUserId, "LOAN_CREATED", "LOAN", loanId,
                         "Principal=" + principal + ", Rate=" + interestRate + ", Term=" + termMonths);
                 connection.commit();
@@ -138,7 +144,10 @@ public class LoanService {
                     throw new ValidationException("Repayment cannot exceed outstanding balance");
                 }
                 long repaymentId = loanRepaymentRepository.insert(connection, loanId, amount);
-                long txId = transactionRepository.insert(connection, memberId, "LOAN_REPAYMENT", amount);
+                String externalId = java.util.UUID.randomUUID().toString();
+                long txId = transactionRepository.insert(connection, externalId, memberId, "LOAN_REPAYMENT", amount);
+                String memberExternalId = memberRepository.findExternalId(connection, memberId);
+                enqueueTransactionSync(connection, externalId, memberExternalId, "LOAN_REPAYMENT", amount);
                 BigDecimal newBalance = loan.getOutstandingBalance().subtract(amount);
                 loanRepository.updateOutstandingBalance(connection, loanId, newBalance);
                 if (newBalance.signum() == 0) {
@@ -166,5 +175,27 @@ public class LoanService {
         } catch (Exception ex) {
             throw new RuntimeException("Failed to load loans", ex);
         }
+    }
+
+    private void enqueueLoanSync(Connection connection, String externalId, String memberExternalId,
+                                 BigDecimal principal, BigDecimal interestRate, int termMonths) {
+        String payload = "{" +
+                "\"externalId\":\"" + JsonUtil.escape(externalId) + "\"," +
+                "\"memberExternalId\":\"" + JsonUtil.escape(memberExternalId) + "\"," +
+                "\"principal\":" + principal + "," +
+                "\"interestRate\":" + interestRate + "," +
+                "\"termMonths\":" + termMonths +
+                "}";
+        outboxRepository.enqueue(connection, "LOAN_CREATE", payload);
+    }
+
+    private void enqueueTransactionSync(Connection connection, String externalId, String memberExternalId, String type, BigDecimal amount) {
+        String payload = "{" +
+                "\"externalId\":\"" + JsonUtil.escape(externalId) + "\"," +
+                "\"memberExternalId\":\"" + JsonUtil.escape(memberExternalId) + "\"," +
+                "\"type\":\"" + JsonUtil.escape(type) + "\"," +
+                "\"amount\":" + amount +
+                "}";
+        outboxRepository.enqueue(connection, "TRANSACTION_CREATE", payload);
     }
 }

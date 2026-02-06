@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.sacco.ui.UsersController" spacing="10">
+    <padding>
+        <Insets top="12" right="12" bottom="12" left="12"/>
+    </padding>
+
+    <Label text="User Registration" styleClass="header" />
+
+    <TableView fx:id="usersTable" prefHeight="260">
+        <columns>
+            <TableColumn fx:id="idColumn" text="ID" prefWidth="60" />
+            <TableColumn fx:id="usernameColumn" text="Username" prefWidth="180" />
+            <TableColumn fx:id="roleColumn" text="Role" prefWidth="120" />
+            <TableColumn fx:id="activeColumn" text="Active" prefWidth="80" />
+        </columns>
+    </TableView>
+
+    <GridPane hgap="8" vgap="8">
+        <Label text="Username" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <TextField fx:id="usernameField" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+        <Label text="Password" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
+        <PasswordField fx:id="passwordField" GridPane.rowIndex="0" GridPane.columnIndex="3"/>
+
+        <Label text="Role" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <ComboBox fx:id="roleCombo" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+        <Button text="Create User" onAction="#handleCreateUser" GridPane.rowIndex="1" GridPane.columnIndex="3" />
+        <Label fx:id="messageLabel" text="" GridPane.rowIndex="2" GridPane.columnIndex="1" GridPane.columnSpan="3" />
+    </GridPane>
+</VBox>

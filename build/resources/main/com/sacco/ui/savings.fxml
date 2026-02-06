@@ -36,9 +36,9 @@
         <Label text="Amount" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
         <TextField fx:id="amountField" GridPane.rowIndex="0" GridPane.columnIndex="3"/>
 
-        <Button text="Create Account" onAction="#handleCreateAccount" GridPane.rowIndex="2" GridPane.columnIndex="1" />
-        <Button text="Deposit" onAction="#handleDeposit" GridPane.rowIndex="2" GridPane.columnIndex="2" />
-        <Button text="Withdraw" onAction="#handleWithdraw" GridPane.rowIndex="2" GridPane.columnIndex="3" />
+        <Button fx:id="createAccountButton" text="Create Account" onAction="#handleCreateAccount" GridPane.rowIndex="2" GridPane.columnIndex="1" />
+        <Button fx:id="depositButton" text="Deposit" onAction="#handleDeposit" GridPane.rowIndex="2" GridPane.columnIndex="2" />
+        <Button fx:id="withdrawButton" text="Withdraw" onAction="#handleWithdraw" GridPane.rowIndex="2" GridPane.columnIndex="3" />
 
         <Label fx:id="messageLabel" text="" GridPane.rowIndex="3" GridPane.columnIndex="1" GridPane.columnSpan="3" />
     </GridPane>

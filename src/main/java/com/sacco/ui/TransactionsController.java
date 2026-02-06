@@ -56,7 +56,7 @@ public class TransactionsController {
         if (user == null) {
             return;
         }
-        if (user.getRole() != Role.ADMIN) {
+        if (user.getRole() != Role.DIRECTOR) {
             reverseButton.setDisable(true);
             reversalTransactionIdField.setDisable(true);
         }

@@ -94,11 +94,8 @@ public class LoansController {
             disburseButton.setDisable(true);
         } else if (role == Role.MANAGER) {
             repaymentButton.setDisable(true);
-        } else if (role == Role.ADMIN) {
-            issueButton.setDisable(true);
-            approveButton.setDisable(true);
-            disburseButton.setDisable(true);
-            repaymentButton.setDisable(true);
+        } else if (role == Role.DIRECTOR) {
+            // full access
         }
     }
 

@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 
 public class Loan {
     private final long id;
+    private final String externalId;
     private final long memberId;
     private final String memberName;
     private final BigDecimal principal;
@@ -16,10 +17,11 @@ public class Loan {
     private final Long approvedBy;
     private final Long disbursedBy;
 
-    public Loan(long id, long memberId, String memberName, BigDecimal principal, BigDecimal interestRate,
+    public Loan(long id, String externalId, long memberId, String memberName, BigDecimal principal, BigDecimal interestRate,
                 int termMonths, String issuedAt, String status, BigDecimal outstandingBalance,
                 Long createdBy, Long approvedBy, Long disbursedBy) {
         this.id = id;
+        this.externalId = externalId;
         this.memberId = memberId;
         this.memberName = memberName;
         this.principal = principal;
@@ -35,6 +37,10 @@ public class Loan {
 
     public long getId() {
         return id;
+    }
+
+    public String getExternalId() {
+        return externalId;
     }
 
     public long getMemberId() {

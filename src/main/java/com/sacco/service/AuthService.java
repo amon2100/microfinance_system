@@ -34,7 +34,7 @@ public class AuthService {
     public long createUser(String username, String password, Role role) {
         try (Connection connection = Database.getConnection()) {
             String hash = PasswordHasher.hash(password);
-            long userId = userRepository.create(connection, username, hash, role);
+            long userId = userRepository.create(connection, java.util.UUID.randomUUID().toString(), username, hash, role);
             auditRepository.insert(connection, userId, "USER_CREATED", "USER", userId, "Created user with role " + role.name());
             return userId;
         } catch (Exception ex) {
