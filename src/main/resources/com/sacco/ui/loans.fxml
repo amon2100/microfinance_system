@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.sacco.ui.LoansController" spacing="10">
+    <padding>
+        <Insets top="12" right="12" bottom="12" left="12"/>
+    </padding>
+
+    <Label text="Loans" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+
+    <TableView fx:id="loansTable" prefHeight="260">
+        <columns>
+            <TableColumn fx:id="idColumn" text="ID" prefWidth="60" />
+            <TableColumn fx:id="memberColumn" text="Member" prefWidth="160" />
+            <TableColumn fx:id="memberIdColumn" text="Member ID" prefWidth="90" />
+            <TableColumn fx:id="principalColumn" text="Principal" prefWidth="110" />
+            <TableColumn fx:id="rateColumn" text="Rate" prefWidth="80" />
+            <TableColumn fx:id="termColumn" text="Term (Months)" prefWidth="110" />
+            <TableColumn fx:id="outstandingColumn" text="Outstanding" prefWidth="120" />
+            <TableColumn fx:id="statusColumn" text="Status" prefWidth="90" />
+            <TableColumn fx:id="issuedAtColumn" text="Issued At" prefWidth="140" />
+        </columns>
+    </TableView>
+
+    <GridPane hgap="8" vgap="8">
+        <Label text="Member ID" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <TextField fx:id="memberIdField" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+        <Label text="Principal" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
+        <TextField fx:id="principalField" GridPane.rowIndex="0" GridPane.columnIndex="3"/>
+
+        <Label text="Rate" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <TextField fx:id="rateField" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+        <Label text="Term (Months)" GridPane.rowIndex="1" GridPane.columnIndex="2"/>
+        <TextField fx:id="termField" GridPane.rowIndex="1" GridPane.columnIndex="3"/>
+
+        <Button fx:id="issueButton" text="Issue Loan" onAction="#handleIssueLoan" GridPane.rowIndex="2" GridPane.columnIndex="3" />
+
+        <Label text="Loan ID" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+        <TextField fx:id="loanIdField" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+        <Label text="Member ID" GridPane.rowIndex="3" GridPane.columnIndex="2"/>
+        <TextField fx:id="repaymentMemberIdField" GridPane.rowIndex="3" GridPane.columnIndex="3"/>
+
+        <Label text="Amount" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+        <TextField fx:id="repaymentAmountField" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+        <Button fx:id="repaymentButton" text="Record Repayment" onAction="#handleRepayment" GridPane.rowIndex="4" GridPane.columnIndex="3" />
+
+        <Label text="Approve Loan ID" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+        <TextField fx:id="approveLoanIdField" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+        <Button fx:id="approveButton" text="Approve" onAction="#handleApproveLoan" GridPane.rowIndex="5" GridPane.columnIndex="3" />
+
+        <Label text="Disburse Loan ID" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+        <TextField fx:id="disburseLoanIdField" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+        <Button fx:id="disburseButton" text="Disburse" onAction="#handleDisburseLoan" GridPane.rowIndex="6" GridPane.columnIndex="3" />
+
+        <Label fx:id="messageLabel" text="" GridPane.rowIndex="7" GridPane.columnIndex="1" GridPane.columnSpan="3" />
+    </GridPane>
+</VBox>

@@ -1,0 +1,32 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/microfinance
+    username: microfinance
+    password: microfinance
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+    open-in-view: false
+
+app:
+  security:
+    jwtSecret: "CHANGE_ME_TO_A_LONG_RANDOM_SECRET"
+    jwtIssuer: "sacco-backend"
+    jwtExpirationMinutes: 60
+  payments:
+    mtn:
+      apiBaseUrl: "https://sandbox.mtn.example"
+      apiKey: "CHANGE_ME"
+      apiSecret: "CHANGE_ME"
+      callbackSecret: "CHANGE_ME"
+    airtel:
+      apiBaseUrl: "https://sandbox.airtel.example"
+      apiKey: "CHANGE_ME"
+      apiSecret: "CHANGE_ME"
+      callbackSecret: "CHANGE_ME"
